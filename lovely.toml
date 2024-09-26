@@ -1,0 +1,83 @@
+[manifest]
+version = "1.0.0"
+dump_lua = true
+priority = 0
+
+[[patches]]
+[patches.pattern]
+target = 'game.lua'
+pattern = '''chips_text = '0','''
+position = 'after'
+payload = '''blind_edition = {
+    Small = {},
+    Big = {},
+    Boss = {},
+    first_ante = true
+},
+'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'functions/UI_definitions.lua'
+pattern = '''G.GAME.orbital_choices = G.GAME.orbital_choices or {}'''
+position = 'before'
+payload = '''local a_table = {
+    {shader = 'dissolve', shadow_height = 0.05},
+    {shader = 'dissolve'},
+}
+if G.GAME.blind_edition and G.GAME.blind_edition[type] then
+    edi = G.GAME.blind_edition[type]
+    if edi.foil then
+        a_table[#a_table + 1] = {shader = 'foil'}
+    end
+    if edi.holo then
+        a_table[#a_table + 1] = {shader = 'holo'}
+    end
+end
+blind_choice.animation:define_draw_steps(a_table)'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'functions/common_events.lua'
+pattern = '''function reset_blinds()'''
+position = 'after'
+payload = '''if (G.GAME.round_resets.blind_states.Boss == 'Defeated') or (G.GAME.blind_edition.first_ante) then
+    set_blind_editions()
+end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'blind.lua'
+pattern = '''self.children.animatedSprite:draw_shader('dissolve')'''
+position = 'after'
+payload = '''if G.GAME.blind_edition and G.GAME.blind_edition[G.GAME.blind_on_deck] then
+    edi = G.GAME.blind_edition[G.GAME.blind_on_deck]
+    if edi.foil then
+        self.children.animatedSprite:draw_shader('foil')
+    end
+    if edi.holo then
+        self.children.animatedSprite:draw_shader('holo')
+    end
+end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'blind.lua'
+pattern = '''if self.name == 'The Eye' and not reset then'''
+position = 'before'
+payload = '''if G.GAME.blind_edition and G.GAME.blind_edition[G.GAME.blind_on_deck] and not reset then
+    edi = G.GAME.blind_edition[G.GAME.blind_on_deck]
+    if edi.foil then
+        self.chips = self.chips * 1.5
+        self.chip_text = number_format(self.chips)
+    end
+    if edi.holo then
+        ease_hands_played(-1)
+        ease_discard(-1)
+    end
+end'''
+match_indent = true

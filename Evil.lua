@@ -22,7 +22,7 @@ function set_blind_editions()
         G.GAME.blind_edition["Small"].foil = true
     end
     local big_rand = pseudorandom(pseudoseed('e_big'))
-    if small_rand < 0.1 then
+    if big_rand < 0.1 then
         G.GAME.blind_edition["Big"].poly = true
     elseif big_rand < 0.2 then
         G.GAME.blind_edition["Big"].holo = true
@@ -30,7 +30,7 @@ function set_blind_editions()
         G.GAME.blind_edition["Big"].foil = true
     end
     local boss_rand = pseudorandom(pseudoseed('e_boss'))
-    if small_rand < 0.2 then
+    if boss_rand < 0.2 then
         G.GAME.blind_edition["Boss"].poly = true
     elseif boss_rand < 0.4 then
         G.GAME.blind_edition["Boss"].holo = true

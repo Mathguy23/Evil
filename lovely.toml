@@ -34,6 +34,9 @@ if G.GAME.blind_edition and G.GAME.blind_edition[type] then
     if edi.holo then
         a_table[#a_table + 1] = {shader = 'holo'}
     end
+    if edi.poly then
+        a_table[#a_table + 1] = {shader = 'polychrome'}
+    end
 end
 blind_choice.animation:define_draw_steps(a_table)'''
 match_indent = true
@@ -61,6 +64,9 @@ payload = '''if G.GAME.blind_edition and G.GAME.blind_edition[G.GAME.blind_on_de
     if edi.holo then
         self.children.animatedSprite:draw_shader('holo')
     end
+    if edi.poly then
+        self.children.animatedSprite:draw_shader('polychrome')
+    end
 end'''
 match_indent = true
 
@@ -69,7 +75,7 @@ match_indent = true
 target = 'blind.lua'
 pattern = '''if self.name == 'The Eye' and not reset then'''
 position = 'before'
-payload = '''if G.GAME.blind_edition and G.GAME.blind_edition[G.GAME.blind_on_deck] and not reset then
+payload = '''if G.GAME.blind_edition and G.GAME.blind_edition[G.GAME.blind_on_deck] and not reset and (blind and blind.name and blind.name ~= '') then
     edi = G.GAME.blind_edition[G.GAME.blind_on_deck]
     if edi.foil then
         self.chips = self.chips * 1.5
@@ -79,5 +85,21 @@ payload = '''if G.GAME.blind_edition and G.GAME.blind_edition[G.GAME.blind_on_de
         ease_hands_played(-1)
         ease_discard(-1)
     end
+    if edi.poly then
+        G.hand:change_size(-1)
+    end
 end'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = 'blind.lua'
+pattern = '''function Blind:defeat(silent)'''
+position = 'after'
+payload = '''   if G.GAME.blind_edition and G.GAME.blind_edition[G.GAME.blind_on_deck] then
+        edi = G.GAME.blind_edition[G.GAME.blind_on_deck]
+        if edi.poly then
+            G.hand:change_size(1)
+        end
+    end'''
 match_indent = true
